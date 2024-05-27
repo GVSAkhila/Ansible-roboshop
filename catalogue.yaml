@@ -38,7 +38,7 @@
     - name: Download the catalogue artifacts
       ansible.builtin.get_url:
         url: https://roboshop-builds.s3.amazonaws.com/catalogue.zip
-        dest: /tm
+        dest: /tmp
 
     - name: Extract the catalogue application code to /app directory
       ansible.builtin.unarchive:
