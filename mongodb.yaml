@@ -1,4 +1,3 @@
----
 - name: Install MongoDB component
   hosts: mongodb
   become: yes
@@ -12,17 +11,20 @@
       ansible.builtin.yum:
         name: mongodb-org
         state: present
-    - name: start and enable momgodb
+
+    - name: Start and enable MongoDB service
       ansible.builtin.service:
-       name: momgod
-       state: started
-       enabled: yes
-    - name: enabled remote connections mongodb
-       ansible.builtin.replaced:
+        name: mongod
+        state: started
+        enabled: yes
+
+    - name: Enable remote connections to MongoDB
+      ansible.builtin.replace:
         path: /etc/mongod.conf
         regexp: '127.0.0.1'
         replace: '0.0.0.0'
-   - name: Restart MongoDB service
+
+    - name: Restart MongoDB service
       ansible.builtin.systemd:
         name: mongod
         state: restarted
