@@ -34,3 +34,14 @@
         path: /app
         state: directory
       when: directory.stat.exists == False
+
+    - name: Download the catalogue artifacts
+      ansible.builtin.get_url:
+        url: https://roboshop-builds.s3.amazonaws.com/catalogue.zip
+        dest: /tm
+
+    - name: Extract the catalogue application code to /app directory
+      ansible.builtin.unarchive:
+        src: /tmp/catalogue.zip
+        dest: /app
+        remote_src: yes
