@@ -25,10 +25,6 @@
         path: /app
       register: directory
 
-    - name: Print the directory status
-      ansible.builtin.debug:
-        msg: "Output id {{ directory }}"
-
     - name: Create /app directory if it doesn't exist
       ansible.builtin.file:
         path: /app
@@ -38,7 +34,7 @@
     - name: Download the catalogue artifacts
       ansible.builtin.get_url:
         url: "https://roboshop-builds.s3.amazonaws.com/catalogue.zip"
-        dest: /tmp
+        dest: /tmp/catalogue.zip
 
     - name: Extract the catalogue application code to /app directory
       ansible.builtin.unarchive:
@@ -51,34 +47,30 @@
       args:
         chdir: /app
 
-    - name: copy catalogue service
+    - name: Copy catalogue service
       ansible.builtin.copy:
-       src: catalogue.service
-       dest: /etc/systemd/system/catalogue.service
+        src: catalogue.service
+        dest: /etc/systemd/system/catalogue.service
 
-
-    - name: Reload systemd daemon   
-      ansible.builtin.systemd: true
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reexec: yes
 
     - name: Copy MongoDB repo to yum.repos.d
       ansible.builtin.copy:
         src: mongodb.repo
-        dest: /etc/yum.repos.d/mongodb.repo  
-        
-    - name: install mongoDB
+        dest: /etc/yum.repos.d/mongodb.repo
+
+    - name: Install MongoDB
       ansible.builtin.yum:
-        name: mongodb-org-shell -y
+        name: mongodb-org-shell
         state: installed
 
-
-    - name: load catalogue data
+    - name: Load catalogue data
       ansible.builtin.command: mongo --host mongodb.joinsankardevops.online </app/schema/catalogue.js
 
-    - name : restart the catalogue
+    - name: Restart the catalogue service
       ansible.builtin.service:
-       name: catalogue
-       state: restarted
-       enabled: true  
-
-        
-        
+        name: catalogue
+        state: restarted
+        enabled: true
