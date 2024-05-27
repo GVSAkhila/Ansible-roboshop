@@ -28,3 +28,9 @@
     - name: Print the directory status
       ansible.builtin.debug:
         msg: "Output id {{ directory }}"
+
+    - name: Create /app directory if it doesn't exist
+      ansible.builtin.file:
+        path: /app
+        state: directory
+      when: directory.stat.exists == False
