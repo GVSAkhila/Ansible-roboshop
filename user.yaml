@@ -1,0 +1,76 @@
+- name: Install user component
+  hosts: user
+  become: yes
+  tasks:
+    - name: Setup NPM source
+      ansible.builtin.shell: "curl -sL https://rpm.nodesource.com/setup_lts.x | bash"
+
+    - name: Install Node.js
+      ansible.builtin.yum:
+        name: nodejs
+        state: present
+
+    - name: Check if roboshop user exists
+      ansible.builtin.command: id roboshop
+      register: output
+      ignore_errors: true
+
+    - name: Create roboshop user if it doesn't exist
+      ansible.builtin.user:
+        name: roboshop
+      when: output.rc != 0
+
+    - name: Check if /app directory exists
+      ansible.builtin.stat:
+        path: /app
+      register: directory
+
+    - name: Create /app directory if it doesn't exist
+      ansible.builtin.file:
+        path: /app
+        state: directory
+      when: directory.stat.exists == False
+
+    - name: Download the user artifacts
+      ansible.builtin.get_url:
+        url: "https://roboshop-builds.s3.amazonaws.com/user.zip"
+        dest: /tmp/user.zip
+
+    - name: Extract the user application code to /app directory
+      ansible.builtin.unarchive:
+        src: "/tmp/user.zip"
+        dest: "/app"
+        remote_src: yes
+
+    - name: Install application dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
+
+    - name: Copy user service
+      ansible.builtin.copy:
+        src: user.service
+        dest: /etc/systemd/system/user.service
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reexec: yes
+
+    - name: Copy MongoDB repo to yum.repos.d
+      ansible.builtin.copy:
+        src: mongodb.repo
+        dest: /etc/yum.repos.d/mongodb.repo
+
+    - name: Install MongoDB
+      ansible.builtin.yum:
+        name: mongodb-org-shell
+        state: installed
+
+    - name: Load user data
+      ansible.builtin.command: mongo --host mongodb.joinsankardevops.online </app/schema/user.js
+
+    - name: Restart the user service
+      ansible.builtin.service:
+        name: user
+        state: restarted
+        enabled: yes
