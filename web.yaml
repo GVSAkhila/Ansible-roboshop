@@ -39,21 +39,7 @@
         src: roboshop.conf
         dest: /etc/nginx/default.d/roboshop.conf
 
-    - name: Test nginx configuration
-      ansible.builtin.command:
-        cmd: nginx -t
-      ignore_errors: yes
-      register: nginx_test
-
-    - name: Display nginx configuration test result
-      ansible.builtin.debug:
-        var: nginx_test.stdout_lines
-
-    - name: Restart nginx if configuration is valid
+    - name: Restart nginx
       ansible.builtin.systemd:
         name: nginx
         state: restarted
-      when: nginx_test.rc == 0
-#
-
-
