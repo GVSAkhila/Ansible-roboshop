@@ -4,9 +4,18 @@ mongodb.joinsankardevops.online
 [catalogue]
 catalogue.joinsankardevops.online
 
-[web]
-web.joinsankardevops.online
+[web1]
+web1.joinsankardevops.online
 
 [redis]
 redis.joinsankardevops.online
 
+[user]
+user.joinsankardevops.online
+
+
+[cart]
+cart.joinsankardevops.online
+
+[mysql]
+mysql.joinsankardevops.online
