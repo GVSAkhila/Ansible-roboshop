@@ -26,7 +26,7 @@
     - name: Download the web artifacts
       ansible.builtin.get_url:
         url: https://roboshop-builds.s3.amazonaws.com/web.zip
-        dest: /tmp/
+        dest: /tmp/web.zip
 
     - name: Extract the web application code to html directory
       ansible.builtin.unarchive:
@@ -39,7 +39,23 @@
         src: roboshop.conf
         dest: /etc/nginx/default.d/roboshop.conf
 
+    - name: Check nginx configuration
+      ansible.builtin.command:
+        cmd: nginx -t
+      register: nginx_config_test
+      ignore_errors: yes
+
+    - name: Debug nginx configuration test output
+      ansible.builtin.debug:
+        msg: "{{ nginx_config_test.stdout }}"
+
+    - name: Fail if nginx configuration test failed
+      ansible.builtin.fail:
+        msg: "Nginx configuration test failed. Error: {{ nginx_config_test.stdout }}"
+      when: nginx_config_test.rc != 0
+
     - name: Restart nginx
       ansible.builtin.service:
         name: nginx
         state: restarted
+      when: nginx_config_test.rc == 0
