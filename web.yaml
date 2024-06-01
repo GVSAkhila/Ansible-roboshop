@@ -14,7 +14,7 @@
         enabled: yes
 
     - name: Remove html directory
-       ansible.builtin.file:
+      ansible.builtin.file:
         path: /usr/share/nginx/html/
         state: absent
 
@@ -22,12 +22,12 @@
       ansible.builtin.file:
         path: /usr/share/nginx/html/
         state: directory
+
     - name: Download the web artifacts
       ansible.builtin.get_url:
         url: https://roboshop-builds.s3.amazonaws.com/web.zip
-        dest: /tmp
+        dest: /tmp/
 
-      
     - name: Extract the web application code to html directory
       ansible.builtin.unarchive:
         src: /tmp/web.zip
